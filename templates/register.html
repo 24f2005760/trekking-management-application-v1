@@ -1,0 +1,117 @@
+<!-- ID: templates/register.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | TMA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="reg-page">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="reg-card">
+                        <!-- Logo & Brand -->
+                        <div class="text-center mb-4">
+                            <h1 style="font-weight: 800; font-size: 2.2rem; margin-top: 10px; margin-bottom: 2px;">TMA</h1>
+                            <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 0;">Trekking Management Application</p>
+                        </div>
+
+                        <!-- Role Selection -->
+                        {% if not role %}
+                        <h2 class="reg-title">Choose Registration Type</h2>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="reg-role-card">
+                                    <h3>Trekker (User)</h3>
+                                    <p>Book treks and track your history.</p>
+                                    <a href="{{ url_for('auth.register', role='user') }}" class="btn reg-btn">Register as Trekker</a>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="reg-role-card">
+                                    <h3>Trek Staff</h3>
+                                    <p>Manage treks and guide trekkers.</p>
+                                    <a href="{{ url_for('auth.register', role='staff') }}" class="btn reg-btn">Register as Trek Staff</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>
+                        </div>
+                        {% else %}
+
+                        <h2 class="reg-title">{% if role == 'user' %}Trekker{% else %}Trek Staff{% endif %} Registration</h2>
+                        
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'success' if 'success' in category or 'info' in category else 'danger' }} fade show text-center" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+
+                        <form method="POST">
+                            <input type="hidden" name="role" value="{{ role }}">
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" name="phone" pattern="[0-9]{10}" title="Phone number must be strictly a 10-digit positive numerical value" required>
+                            </div>
+                            
+                            {% if role == 'staff' %}
+                            <div class="mb-3">
+                                <label class="form-label">Experience (Years)</label>
+                                <input type="number" class="form-control" name="experience" min="0" step="1" required>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" name="confirm_password" required>
+                            </div>
+                            
+                            <button type="submit" class="btn reg-btn w-100">Register</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(el => {
+                el.style.transition = 'opacity 0.5s';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

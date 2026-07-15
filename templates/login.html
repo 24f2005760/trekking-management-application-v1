@@ -1,0 +1,113 @@
+<!-- ID: templates/login.html -->
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | TMA</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+    <div class="login-page">
+
+        <div class="container">
+
+            <div class="row justify-content-center">
+
+                <div class="col-lg-6 col-md-8">
+
+                    <div class="login-card">
+
+                        <div class="text-center mb-4">
+                            <h1 style="font-weight: 800; font-size: 2.2rem; margin-top: 10px; margin-bottom: 2px;">TMA</h1>
+                            <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 0;">Trekking Management Application</p>
+                        </div>
+
+                        <h2 class="login-title">
+
+                            Login
+
+                        </h2>
+
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category if category != 'error' else 'danger' }} fade show" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+
+                        <form method="POST">
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    Email
+
+                                </label>
+
+                                <input type="email" name="email" class="form-control" required>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    Password
+
+                                </label>
+
+                                <input type="password" name="password" class="form-control" required>
+
+                            </div>
+
+                            <button type="submit" class="btn login-btn w-100">
+
+                                Login
+
+                            </button>
+
+                        </form>
+
+                        <div class="text-center mt-3">
+                            Don't have an account? <a href="{{ url_for('auth.register') }}">Register Now</a>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(el => {
+                el.style.transition = 'opacity 0.5s';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
