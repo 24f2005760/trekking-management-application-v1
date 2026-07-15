@@ -1,0 +1,173 @@
+<!-- ID: templates/user/user_dashboard.html -->
+{% extends "user/user_base.html" %}
+
+{% block content %}
+
+<style>
+    .userdash-stats-2col {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+        max-width: 60%;
+        margin-bottom: 25px;
+    }
+    @media (max-width: 768px) {
+        .userdash-stats-2col {
+            grid-template-columns: 1fr;
+            max-width: 100%;
+        }
+    }
+</style>
+
+<h2 class="userdash-title">
+
+    Dashboard
+
+</h2>
+
+<div class="userdash-stats-2col">
+
+    <div class="userdash-card userdash-card-blue">
+
+        <div class="userdash-card-number">
+
+            {{ available_treks|default(0) }}
+
+        </div>
+
+        <div class="userdash-card-label">
+
+            Available Treks
+
+        </div>
+
+    </div>
+
+    <div class="userdash-card userdash-card-purple">
+
+        <div class="userdash-card-number">
+
+            {{ booked_treks|default(0) }}
+
+        </div>
+
+        <div class="userdash-card-label">
+
+            Booked Treks
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="userdash-panel mt-4">
+
+    <h4 class="d-flex align-items-center">
+        Booked Treks
+        <span style="font-size: 0.85rem; color: #6c757d; font-weight: normal; margin-left: 8px;">#Active_Booking(s)</span>
+    </h4>
+
+    <div class="table-responsive">
+
+        <table class="table align-middle userdash-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Booking ID</th>
+
+                    <th>Trek ID</th>
+
+                    <th>Trek Name</th>
+
+                    <th>Location</th>
+
+                    <th>Dates</th>
+
+                    <th>Duration</th>
+
+                    <th>Booking Date</th>
+
+                    <th>Trek Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for booking in booked_active_bookings %}
+
+                <tr>
+
+                    <td>{{ booking.id }}</td>
+
+                    <td>{{ booking.trek_id }}</td>
+
+                    <td><strong class="text-dark">{{ booking.trek.name }}</strong></td>
+
+                    <td>{{ booking.trek.location }}</td>
+
+                    <td>{{ booking.trek.start_date }} to {{ booking.trek.end_date }}</td>
+
+                    <td>{{ booking.trek.duration }} Days</td>
+
+                    <td>{{ booking.booking_date.strftime('%Y-%m-%d %H:%M') }}</td>
+
+                    <td>
+                        {% if booking.trek.status == 'Open' %}
+                        <span class="badge" style="background-color: #059669 !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px;">Open</span>
+                        {% elif booking.trek.status == 'Closed' %}
+                        <span class="badge" style="background-color: #EA580C !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px;">Closed</span>
+                        {% elif booking.trek.status == 'Started' %}
+                        <span class="badge" style="background-color: #2563eb !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px;">Started</span>
+                        {% elif booking.trek.status == 'Completed' %}
+                        <span class="badge" style="background-color: #64748b !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px;">Completed</span>
+                        {% elif booking.trek.status == 'Trek Cancelled' %}
+                        <span class="badge bg-danger" style="color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px;">Trek Cancelled</span>
+                        {% else %}
+                        <span class="badge" style="background-color: #f3f4f6 !important; color: #374151 !important; border: 1px solid #e5e7eb !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px;">{{ booking.trek.status }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if booking.trek.status == 'Open' %}
+                        <form action="/user/cancel/{{ booking.id }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking? This will refund your slot.');" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-3 rounded-pill" style="font-size: 0.85rem; font-weight: 500;">
+                                Cancel Booking
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted small">-</span>
+                        {% endif %}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="8" class="text-center text-muted">
+
+                        No booked treks found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
