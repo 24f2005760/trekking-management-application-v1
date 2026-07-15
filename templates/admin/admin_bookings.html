@@ -1,0 +1,94 @@
+<!-- ID: templates/admin/admin_bookings.html -->
+{% extends "admin/admin_base.html" %}
+
+{% block content %}
+
+<div class="adminusers-header mb-4">
+    <h1 class="admindash-title mb-0">Bookings Management</h1>
+</div>
+
+<!-- Search Form -->
+<form method="GET" class="mb-4">
+    <div class="input-group adminusers-search-group">
+        <input type="text" name="search" class="form-control" placeholder="Search by Booking ID, Trek Name, or Trekker Name"
+            value="{{ request.args.get('search', '') }}">
+        <button type="submit" class="btn adminusers-search-btn">Search</button>
+    </div>
+</form>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} fade show" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="adminusers-card">
+    <div class="table-responsive">
+        <table class="table adminusers-table">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>User ID</th>
+                    <th>Trekker Name</th>
+                    <th>Trek ID</th>
+                    <th>Trek Name</th>
+                    <th>Booking Date</th>
+                    <th>Trek Status</th>
+                    <th>Booking Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.id }}</td>
+                    <td>{{ booking.user.id }}</td>
+                    <td>{{ booking.user.name }}</td>
+                    <td>{{ booking.trek.id }}</td>
+                    <td>{{ booking.trek.name }}</td>
+                    <td>{{ booking.booking_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if booking.trek.status == 'Open' %}
+                        <span class="badge" style="background-color: #059669 !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Open</span>
+                        {% elif booking.trek.status == 'Closed' %}
+                        <span class="badge" style="background-color: #EA580C !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Closed</span>
+                        {% elif booking.trek.status == 'Started' %}
+                        <span class="badge" style="background-color: #2563eb !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Started</span>
+                        {% elif booking.trek.status == 'Completed' %}
+                        <span class="badge" style="background-color: #64748b !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Completed</span>
+                        {% elif booking.trek.status == 'Trek Cancelled' %}
+                        <span class="badge bg-danger" style="color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Trek Cancelled</span>
+                        {% else %}
+                        <span class="badge" style="background-color: #f3f4f6 !important; color: #374151 !important; border: 1px solid #e5e7eb !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">{{ booking.trek.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-{% if booking.booking_status == 'Booked' %}primary{% elif booking.booking_status == 'Cancelled' %}danger{% else %}success{% endif %}">
+                            {{ booking.booking_status }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if booking.booking_status == 'Booked' and booking.trek.status != 'Completed' %}
+                        <a href="/admin/bookings/cancel/{{ booking.id }}" class="btn btn-sm btn-danger py-1 px-2" style="font-size: 0.85rem;" onclick="return confirm('Are you sure you want to cancel this booking?');">
+                            Cancel Booking
+                        </a>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center">No Bookings Available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

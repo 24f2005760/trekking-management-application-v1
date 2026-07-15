@@ -1,0 +1,145 @@
+<!-- ID: templates/admin/admin_base.html -->
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Panel | TMA</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="baseadmin-wrapper">
+
+        <!-- Sidebar -->
+
+        <aside class="baseadmin-sidebar"
+               id="baseadminSidebar">
+
+            <div style="height: 70px; display: flex; align-items: center; justify-content: center;">
+                <span style="color: white; font-size: 1.25rem; font-weight: 800;">TMA</span>
+            </div>
+
+            <ul style="list-style: none; padding: 20px 4px; margin: 0;">
+
+                <li style="margin: 20px 2px;">
+
+                    <a href="{{ url_for('admin.admin_dashboard') }}"
+                       style="display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; text-align: center; transition: 0.3s; background: {% if request.endpoint == 'admin.admin_dashboard' %}#ffffff; color: #000000;{% else %}transparent; color: rgba(255, 255, 255, 0.7);{% endif %};">
+
+                        Dashboard
+
+                    </a>
+
+                </li>
+
+                <li style="margin: 20px 2px;">
+
+                    <a href="{{ url_for('admin.manage_treks') }}"
+                       style="display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; text-align: center; transition: 0.3s; background: {% if request.endpoint == 'admin.manage_treks' %}#ffffff; color: #000000;{% else %}transparent; color: rgba(255, 255, 255, 0.7);{% endif %};">
+
+                        Treks
+
+                    </a>
+
+                </li>
+
+                <li style="margin: 20px 2px;">
+
+                    <a href="/admin/staff"
+                       style="display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; text-align: center; transition: 0.3s; background: {% if request.endpoint == 'admin.admin_staff' %}#ffffff; color: #000000;{% else %}transparent; color: rgba(255, 255, 255, 0.7);{% endif %};">
+
+                        Staff
+
+                    </a>
+
+                </li>
+
+                <li style="margin: 20px 2px;">
+
+                    <a href="/admin/users"
+                       style="display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; text-align: center; transition: 0.3s; background: {% if request.endpoint == 'admin.admin_users' %}#ffffff; color: #000000;{% else %}transparent; color: rgba(255, 255, 255, 0.7);{% endif %};">
+
+                        Users
+
+                    </a>
+
+                </li>
+
+                <li style="margin: 20px 2px;">
+
+                    <a href="/admin/bookings"
+                       style="display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; text-align: center; transition: 0.3s; background: {% if request.endpoint == 'admin.manage_bookings' %}#ffffff; color: #000000;{% else %}transparent; color: rgba(255, 255, 255, 0.7);{% endif %};">
+
+                        Bookings
+
+                    </a>
+
+                </li>
+
+                <li style="margin: 20px 2px;">
+
+                    <a href="/logout"
+                       style="display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; text-align: center; transition: 0.3s; background: transparent; color: rgba(255, 255, 255, 0.7);">
+
+                        Logout
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <!-- Main Content -->
+
+        <div class="baseadmin-main">
+
+            <header class="baseadmin-topbar">
+
+                <div class="baseadmin-title">
+
+                    Admin Panel
+
+                </div>
+
+            </header>
+
+            <!-- Page Content -->
+
+            <main class="baseadmin-content">
+
+                {% block content %}
+                {% endblock %}
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(el => {
+                el.style.transition = 'opacity 0.5s';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

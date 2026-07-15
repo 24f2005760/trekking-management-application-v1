@@ -1,0 +1,117 @@
+<!-- ID: templates/admin/admin_users.html -->
+{% extends "admin/admin_base.html" %}
+{% block content %}
+
+<div class="adminusers-header">
+    <h1 class="admindash-title mb-0">User Management</h1>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} fade show" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<form method="GET">
+    <div class="input-group adminusers-search-group">
+
+        <input type="text" name="search" class="form-control" placeholder="Search by User ID or Name"
+            value="{{ request.args.get('search', '') }}">
+
+        <button type="submit" class="btn adminusers-search-btn">Search</button>
+
+    </div>
+</form>
+
+<div class="adminusers-card">
+    <div class="table-responsive">
+        <table class="table adminusers-table">
+            <thead>
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Name</th>
+
+                    <th>Email</th>
+
+                    <th>Total Bookings</th>
+
+                    <th>Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                
+                {% for user in users %}
+
+                <tr>
+
+                    <td>{{ user.id }}</td>
+
+                    <td>{{ user.name }}</td>
+
+                    <td>{{ user.email }}</td>
+
+                    <td>{{ user.bookings|length }}</td>
+
+                    <td>
+
+                        {% if user.blacklisted %}
+
+                        <span class="adminusers-status-blacklisted">
+
+                            Blacklisted
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="adminusers-status-active">
+                            Active
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if user.blacklisted %}
+
+                        <a href="/admin/users/unblacklist/{{ user.id }}" class="adminusers-unblacklist-btn">
+                            Unblacklist
+                        </a>
+
+                        {% else %}
+
+                        <a href="/admin/users/blacklist/{{ user.id }}" class="adminusers-blacklist-btn">
+                            Blacklist
+                        </a>
+
+                        {% endif %}
+
+                    </td>
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="6" class="text-center">
+                        No Users Available
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

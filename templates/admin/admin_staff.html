@@ -1,0 +1,246 @@
+<!-- ID: templates/admin/admin_staff.html -->
+{% extends "admin/admin_base.html" %}
+
+{% block content %}
+
+<div class="adminstaff-header">
+
+    <h1 class="admindash-title mb-0">
+        Staff Management
+    </h1>
+
+    <button id="pendingApprovalsBtn" class="btn adminstaff-pending-btn" onclick="togglePendingStaff()">
+
+        Pending Approvals ({{ pending_staff|length }})
+
+    </button>
+
+</div>
+
+<form id="searchForm" method="GET" class="mb-4">
+    <div class="input-group adminusers-search-group">
+        <input type="text" name="search" class="form-control" placeholder="Search by Staff ID, Name, or Email"
+            value="{{ request.args.get('search', '') }}">
+        <button type="submit" class="btn adminusers-search-btn">Search</button>
+    </div>
+</form>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} fade show" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<div id="pendingStaffContainer" class="adminstaff-card" style="display:none;">
+
+    <h4>
+        Pending Approval Requests
+    </h4>
+
+    <div class="table-responsive">
+
+        <table class="table adminstaff-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Name</th>
+
+                    <th>Email</th>
+
+                    <th>Phone</th>
+
+                    <th>Experience</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for staff in pending_staff %}
+
+                <tr>
+
+                    <td>{{ staff.id }}</td>
+
+                    <td>{{ staff.name }}</td>
+
+                    <td>{{ staff.email }}</td>
+
+                    <td>{{ staff.phone }}</td>
+
+                    <td>{{ staff.experience }} Years</td>
+
+                    <td>
+                        <a href="/admin/staff/approve/{{ staff.id }}" class="btn btn-sm btn-success py-1 px-2 me-2" style="font-size: 0.85rem;">
+                            Approve
+                        </a>
+                        <a href="/admin/staff/reject/{{ staff.id }}" class="btn btn-sm btn-danger py-1 px-2" style="font-size: 0.85rem;" onclick="return confirm('Are you sure you want to reject this staff application?');">
+                            Reject
+                        </a>
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="6" class="text-center text-muted">
+                        No pending approval requests.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div id="staffManagementContainer" class="adminstaff-card">
+
+    <div class="table-responsive">
+
+        <table class="table adminstaff-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Name</th>
+
+                    <th>Email</th>
+
+                    <th>Phone</th>
+
+                    <th>Experience</th>
+
+                    <th>Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for staff in staff_members %}
+
+                <tr>
+
+                    <td>{{ staff.id }}</td>
+
+                    <td>{{ staff.name }}</td>
+
+                    <td>{{ staff.email }}</td>
+
+                    <td>{{ staff.phone }}</td>
+
+                    <td>{{ staff.experience }} Years</td>
+
+                    <td>
+
+                        {% if staff.blacklisted %}
+
+                        <span class="adminstaff-status-blacklisted">
+                            Blacklisted
+                        </span>
+
+                        {% elif staff.approved %}
+
+                        <span class="adminstaff-status-approved">
+                            Approved
+                        </span>
+
+                        {% else %}
+
+                        <span class="adminstaff-status-pending">
+                            Pending
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {% if not staff.approved %}
+                        <a href="/admin/staff/approve/{{ staff.id }}" class="btn btn-sm btn-success me-1 py-1 px-2" style="font-size: 0.85rem;">
+                            Approve
+                        </a>
+                        {% endif %}
+
+                        {% if staff.blacklisted %}
+                        <a href="/admin/staff/unblacklist/{{ staff.id }}" class="adminusers-unblacklist-btn py-1 px-2" style="font-size: 0.85rem;">
+                            Unblacklist
+                        </a>
+                        {% else %}
+                        <a href="/admin/staff/blacklist/{{ staff.id }}" class="adminusers-blacklist-btn py-1 px-2" style="font-size: 0.85rem;">
+                            Blacklist
+                        </a>
+                        {% endif %}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="7" class="text-center">
+                        No Staff Available
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+    function togglePendingStaff() {
+        const pendingSection = document.getElementById("pendingStaffContainer");
+        const staffSection = document.getElementById("staffManagementContainer");
+        const searchForm = document.getElementById("searchForm");
+        const btn = document.getElementById("pendingApprovalsBtn");
+
+        if (pendingSection.style.display === "none") {
+            pendingSection.style.display = "block";
+            staffSection.style.display = "none";
+            searchForm.style.display = "none";
+            btn.classList.add("active-outline");
+        } else {
+            pendingSection.style.display = "none";
+            staffSection.style.display = "block";
+            searchForm.style.display = "block";
+            btn.classList.remove("active-outline");
+        }
+    }
+
+</script>
+
+{% endblock %}
