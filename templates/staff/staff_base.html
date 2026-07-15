@@ -1,0 +1,83 @@
+<!-- ID: templates/staff/staff_base.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Staff Panel | TMA</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="basestaff-wrapper">
+
+        <!-- Sidebar -->
+        <aside class="basestaff-sidebar" id="basestaffSidebar">
+
+            <div style="height: 70px; display: flex; align-items: center; justify-content: center;">
+                <span style="color: white; font-size: 1.25rem; font-weight: 800;">TMA</span>
+            </div>
+
+            <ul style="list-style: none; padding: 20px 4px; margin: 0;">
+                <li style="margin: 20px 2px;">
+                    <a href="/staff/dashboard" style="display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; text-align: center; transition: 0.3s; background: {% if request.path == '/staff/dashboard' %}#ffffff; color: #000000;{% else %}transparent; color: rgba(255, 255, 255, 0.7);{% endif %};">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li style="margin: 20px 2px;">
+                    <a href="/staff/profile" style="display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; text-align: center; transition: 0.3s; background: {% if request.path == '/staff/profile' %}#ffffff; color: #000000;{% else %}transparent; color: rgba(255, 255, 255, 0.7);{% endif %};">
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <li style="margin: 20px 2px;">
+                    <a href="/logout" style="display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600; text-align: center; transition: 0.3s; background: transparent; color: rgba(255, 255, 255, 0.7);">
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <div class="basestaff-main">
+
+            <!-- Topbar -->
+            <header class="basestaff-topbar">
+                <div class="basestaff-title">
+                    Staff Panel
+                </div>
+                {% if current_staff %}
+                <div class="d-flex align-items-center text-secondary font-weight-bold" style="font-size: 0.95rem;">
+                    <span>{{ current_staff.name }}</span>
+                </div>
+                {% endif %}
+            </header>
+
+            <!-- Page Content -->
+            <main class="basestaff-content">
+                {% block content %}
+                {% endblock %}
+            </main>
+
+        </div>
+
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(el => {
+                el.style.transition = 'opacity 0.5s';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+
+</html>

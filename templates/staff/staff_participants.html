@@ -1,0 +1,54 @@
+<!-- ID: templates/staff/staff_participants.html -->
+{% extends "staff/staff_base.html" %}
+
+{% block content %}
+
+<div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold text-dark">Participant List</h2>
+        <h6 class="text-muted">Trek: <strong>#{{ trek.id }} - {{ trek.name }}</strong></h6>
+    </div>
+    <a href="{{ url_for('staff.staff_dashboard') }}" class="btn btn-outline-secondary">
+        Back to Dashboard
+    </a>
+</div>
+
+<div class="card p-3 shadow-sm border-0">
+    <h4 class="mb-3 fw-bold text-dark">Trekkers Info</h4>
+    <div class="table-responsive">
+        <table class="table align-middle staffdash-table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Booking Date</th>
+                    <th>Booking Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.user.id }}</td>
+                    <td><strong>{{ booking.user.name }}</strong></td>
+                    <td>{{ booking.user.email }}</td>
+                    <td>{{ booking.user.phone }}</td>
+                    <td>{{ booking.booking_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <span class="badge bg-{% if booking.booking_status == 'Booked' %}primary{% else %}success{% endif %}">
+                            {{ booking.booking_status }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No active trekkers registered for this trek yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

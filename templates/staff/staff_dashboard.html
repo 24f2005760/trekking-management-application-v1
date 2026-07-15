@@ -1,0 +1,225 @@
+<!-- ID: templates/staff/staff_dashboard.html -->
+{% extends "staff/staff_base.html" %}
+
+{% block content %}
+
+<!-- Header -->
+<h1 class="admindash-title">Dashboard</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'error' and category != 'staff_success' else 'danger' if category == 'error' else 'success' }} fade show mb-4" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+{% set ns = namespace(active=[], past=[]) %}
+{% for trek in treks %}
+    {% if trek.status in ['Completed', 'Trek Cancelled'] %}
+        {% set ns.past = ns.past + [trek] %}
+    {% else %}
+        {% set ns.active = ns.active + [trek] %}
+    {% endif %}
+{% endfor %}
+
+{% set assigned_count = treks|length %}
+{% set completed_count = ns.past|length %}
+{% set active_count = ns.active|length %}
+
+<!-- Stat Cards -->
+<div class="row g-4 mb-4">
+    <!-- Assigned Treks Card -->
+    <div class="col-md-2">
+        <div class="card p-3 shadow-sm border-0 text-dark d-flex flex-row justify-content-between align-items-center rounded-2" style="background-color: #dcdcfb;">
+            <div>
+                <h3 class="mb-0 fw-bold display-6">{{ assigned_count }}</h3>
+                <small class="fw-semibold">Assigned Treks</small>
+            </div>
+        </div>
+    </div>
+    <!-- Completed Treks Card -->
+    <div class="col-md-2">
+        <div class="card p-3 shadow-sm border-0 text-dark d-flex flex-row justify-content-between align-items-center rounded-2 clickable-stat-card" style="background-color: #fee2e2; cursor: pointer;" onclick="togglePastTreks();" title="Click to view completed and cancelled treks">
+            <div>
+                <h3 class="mb-0 fw-bold display-6">{{ completed_count }}</h3>
+                <small class="fw-semibold">Completed Treks</small>
+            </div>
+        </div>
+    </div>
+    <!-- Active Treks Card -->
+    <div class="col-md-2">
+        <div class="card p-3 shadow-sm border-0 text-dark d-flex flex-row justify-content-between align-items-center rounded-2" style="background-color: #d1fae5;">
+            <div>
+                <h3 class="mb-0 fw-bold display-6">{{ active_count }}</h3>
+                <small class="fw-semibold">Active Treks</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="fw-bold text-dark mb-3">Active Assigned Treks</h4>
+
+<!-- Active Treks Table -->
+<div class="card p-3 shadow-sm border-0 mb-5">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0 staffdash-table">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Trek ID</th>
+                    <th>Trek Name</th>
+                    <th>Location</th>
+                    <th>Difficulty</th>
+                    <th>Dates</th>
+                    <th>Slots Left</th>
+                    <th>Trekkers</th>
+                    <th>Status</th>
+                    <th class="text-center" style="width: 250px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trek in ns.active %}
+                {% set active_bookings_count = trek.bookings|selectattr('booking_status', 'equalto', 'Booked')|list|length + trek.bookings|selectattr('booking_status', 'equalto', 'Completed')|list|length %}
+                <tr>
+                    <td><span class="text-muted fw-bold">#{{ trek.id }}</span></td>
+                    <td><strong>{{ trek.name }}</strong></td>
+                    <td>{{ trek.location }}</td>
+                    <td>
+                        <span class="badge bg-{% if trek.difficulty == 'Easy' %}success{% elif trek.difficulty == 'Moderate' %}warning text-dark{% else %}danger{% endif %}">
+                            {{ trek.difficulty }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="fw-semibold text-dark">{{ trek.start_date }} to {{ trek.end_date }}</span>
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ trek.duration }} Days</div>
+                    </td>
+                    <td>{{ trek.available_slots }}</td>
+                    <td>
+                        <a href="/staff/trek/participants/{{ trek.id }}" class="fw-bold text-decoration-none">
+                            {{ active_bookings_count }} Trekkers
+                        </a>
+                    </td>
+                    <td>
+                        {% if trek.status == 'Open' %}
+                        <span class="badge" style="background-color: #059669 !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Open</span>
+                        {% elif trek.status == 'Closed' %}
+                        <span class="badge" style="background-color: #EA580C !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Closed</span>
+                        {% elif trek.status == 'Started' %}
+                        <span class="badge" style="background-color: #2563eb !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Started</span>
+                        {% else %}
+                        <span class="badge" style="background-color: #f3f4f6 !important; color: #374151 !important; border: 1px solid #e5e7eb !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">{{ trek.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1 justify-content-center">
+                            {% if trek.status not in ['Completed', 'Started', 'Trek Cancelled'] %}
+                            <a href="/staff/trek/edit/{{ trek.id }}" class="btn btn-sm btn-outline-primary">
+                                Update
+                            </a>
+                            {% endif %}
+                            
+                            {% if trek.status == 'Open' %}
+                            <a href="/staff/trek/close/{{ trek.id }}" class="btn btn-sm btn-warning text-dark" onclick="return confirm('Are you sure you want to close bookings for this trek?');">
+                                Close Bookings
+                            </a>
+                            <a href="/staff/trek/start/{{ trek.id }}" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to start this trek?');">
+                                Start
+                            </a>
+                            {% elif trek.status == 'Closed' %}
+                            <a href="/staff/trek/start/{{ trek.id }}" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to start this trek?');">
+                                Start
+                            </a>
+                            {% elif trek.status == 'Started' %}
+                            <a href="/staff/trek/complete/{{ trek.id }}" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to complete this trek?');">
+                                Complete
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">
+                        No active treks currently assigned to you.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="past-treks-section" style="display: none;">
+    <h4 class="fw-bold text-dark mb-3">Past Assigned Treks</h4>
+
+    <!-- Past Treks Table -->
+    <div class="card p-3 shadow-sm border-0 mb-5">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 staffdash-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Trek ID</th>
+                        <th>Trek Name</th>
+                        <th>Location</th>
+                        <th>Difficulty</th>
+                        <th>Dates</th>
+                        <th>Trekkers</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trek in ns.past %}
+                    {% set active_bookings_count = trek.bookings|selectattr('booking_status', 'equalto', 'Booked')|list|length + trek.bookings|selectattr('booking_status', 'equalto', 'Completed')|list|length %}
+                    <tr>
+                        <td><span class="text-muted fw-bold">#{{ trek.id }}</span></td>
+                        <td><strong>{{ trek.name }}</strong></td>
+                        <td>{{ trek.location }}</td>
+                        <td>
+                            <span class="badge bg-{% if trek.difficulty == 'Easy' %}success{% elif trek.difficulty == 'Moderate' %}warning text-dark{% else %}danger{% endif %}">
+                                {{ trek.difficulty }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="fw-semibold text-dark">{{ trek.start_date }} to {{ trek.end_date }}</span>
+                            <div class="text-muted" style="font-size: 0.75rem;">{{ trek.duration }} Days</div>
+                        </td>
+                        <td>
+                            <a href="/staff/trek/participants/{{ trek.id }}" class="fw-bold text-decoration-none">
+                                {{ active_bookings_count }} Trekkers
+                            </a>
+                        </td>
+                        <td>
+                            {% if trek.status == 'Completed' %}
+                            <span class="badge" style="background-color: #64748b !important; color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Completed</span>
+                            {% elif trek.status == 'Trek Cancelled' %}
+                            <span class="badge bg-danger" style="color: white !important; font-weight: 500; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-block;">Trek Cancelled</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            No completed or cancelled trek records found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePastTreks() {
+    var x = document.getElementById("past-treks-section");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+        x.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+{% endblock %}
